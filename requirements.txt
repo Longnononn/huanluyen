@@ -1,0 +1,11 @@
+onnxruntime
+mss
+pydirectinput
+pyqt5
+requests
+numpy
+opencv-python
+keyboard
+pyyaml
+pywin32
+yt-dlp

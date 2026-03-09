@@ -1,0 +1,60 @@
+name: Auto Train YOLOv8
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [trigger-training]
+  schedule:
+    - cron: '0 0 * * 0' # Tự động train vào 0h sáng Chủ Nhật hàng tuần
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install ultralytics roboflow
+
+      - name: Download Dataset from Roboflow
+        env:
+          ROBOFLOW_API_KEY: ${{ secrets.ROBOFLOW_API_KEY }}
+        run: |
+          python -c "
+          from roboflow import Roboflow
+          rf = Roboflow(api_key='${{ secrets.ROBOFLOW_API_KEY }}')
+          project = rf.workspace('your-workspace').project('your-project')
+          dataset = project.version(1).download('yolov8')
+          "
+
+      - name: Start Training on Cloud
+        run: |
+          yolo train model=yolov8n.pt data=./dataset.yaml epochs=50 imgsz=416 device=cpu
+
+      - name: Export to ONNX
+        run: |
+          yolo export model=runs/detect/train/weights/best.pt format=onnx imgsz=416
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M')"
+
+      - name: Release New Brain (Model)
+        uses: softprops/action-gh-release@v1
+        with:
+          files: runs/detect/train/weights/best.onnx
+          tag_name: v${{ steps.date.outputs.date }}
+          name: AI Brain Update - ${{ steps.date.outputs.date }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
