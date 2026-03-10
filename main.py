@@ -1,9 +1,11 @@
 import sys
+import os
 import threading
 import time
 import keyboard
 import win32api
 import win32con
+import cv2
 
 # QUAN TRỌNG: Phải import Detection (onnxruntime) TRƯỚC PyQt5 
 # để tránh lỗi DLL initialization routine failed (WinError 1114)
@@ -131,8 +133,7 @@ class AIAssistant:
             cv2.imwrite(img_path, self.current_frame)
             
             # 2. Upload tự động lên ImgBB (Sử dụng API Key của bạn)
-            # Thay 'YOUR_IMGBB_API_KEY' bằng Key thật của bạn
-            api_key = "YOUR_IMGBB_API_KEY" 
+            api_key = "c68e2c6a926f63a42b151bb0b1a1a786" 
             print(f"--- Đang gửi 'Bằng chứng lỗi' lên Server... ---")
             
             def upload_task():

@@ -1,0 +1,10 @@
+# Đường dẫn tới thư mục gốc của dataset (để trống để Colab tự nhận dạng)
+path: .
+
+# Đường dẫn tới thư mục huấn luyện và kiểm tra (tương đối so với path ở trên)
+train: train/images
+val: train/images
+
+# Tên các lớp (class)
+names:
+  0: person
